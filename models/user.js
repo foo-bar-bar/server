@@ -24,32 +24,11 @@ const userSchema = new Schema({
     password: {
         type: String,
         required: [true, 'Please enter your password.']
-    },
-    isGoogle: {
-        type: Boolean,
-        default: false
-    },
-    gender: {
-        type: String,
-        required: [true, 'Please set your gender.']
-    },
-    image: {
-        type: String,
-        required: [true, 'Please upload your image.']
-    },
-    profileDescription: String,
-    likers: [{
-        type: Schema.Types.ObjectId,
-        ref: 'User'
-    }]
+    }
 })
 
 userSchema.pre('save', function (next) {
-    if (this.isGoogle == false) {
-        this.password = hash(this.password)
-    } else {
-        this.password = hash(process.env.PASSWORD_USER)
-    }
+    this.password = hash(this.password)
     next()
 })
 
