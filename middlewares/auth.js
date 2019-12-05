@@ -1,5 +1,6 @@
 const { decodeToken } = require('../helpers/jwt')
 const User = require('../models/user')
+const Profile = require('../models/profile')
 
 const authentication = (req, res, next) => {
     try {
@@ -20,6 +21,26 @@ const authentication = (req, res, next) => {
     }
 }
 
+const authorization = (req, res, next) => {
+    console.log(req.body);
+    let { id } = req.params
+    Profile.findOne({ _id: id, userId: req.loggedUser.id })
+        .then(profile => {
+            if (profile) {
+                next()
+            }
+            else {
+                next({
+                    status: 400,
+                    message: `You're not authorize to perform this action`
+                })
+            }
+        })
+        .catch(err => {
+            next({ status: 403, message: err })
+        })
+}
 
 
-module.exports = authentication
+
+module.exports = { authentication, authorization }

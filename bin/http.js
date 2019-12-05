@@ -4,5 +4,5 @@ const PORT = process.env.PORT || 3000
 const server = http.createServer(app)
 
 server.listen(PORT, () => {
-    console.log(`LetsCook server is running on port ${PORT}`)
+    console.log(`app server is running on port ${PORT}`)
 })

@@ -1,6 +1,7 @@
 const axios = require('axios')
 const Profile = require('../models/profile')
 const User = require('../models/user')
+const gcsDelete = require('../helpers/gcsdelete')
 
 class ProfileC {
 
@@ -9,10 +10,9 @@ class ProfileC {
         let image = req.file.cloudStoragePublicUrl;
         let userId = req.loggedUser.id
         axios({
-            methods: 'get',
-            url: '',
+            method: 'post',
+            url: 'https://api.clarifai.com/v2/models/c0c0ac362b03416da06ab3fa36fb58e3/outputs',
             headers: {
-                "Content-Type": "application/json",
                 Authorization: `Key ${process.env.API_KEY_CLARIFAI}`
             },
             data: {
@@ -34,7 +34,7 @@ class ProfileC {
                 let masculine = data.outputs[0].data.regions[0].data.face.gender_appearance.concepts[1].value
                 let multicultural = data.outputs[0].data.regions[0].data.face.multicultural_appearance.concepts[0].name
 
-                Profile.create({
+                return Profile.create({
                     userId,
                     image,
                     age,
@@ -53,6 +53,7 @@ class ProfileC {
         let target = req.query.title || ''
         console.log(req.loggedUser, target);
         User.find({ name: { $regex: target } })
+            .populate(["Profile Profile.userId"])
             .sort({ createdAt: -1 })
             .then(profile => {
                 console.log(profile)
@@ -76,13 +77,14 @@ class ProfileC {
     }
 
     static updateField(req, res, next) {
-        let image = req.file.cloudStoragePublicUrl;
-        let dataChange = { image: image }
+        let url = req.file.cloudStoragePublicUrl;
+        console.log(url);
+        let dataChange = { image: url }
         const _id = req.params.id;
         Profile.findByIdAndUpdate(
             _id,
             {
-                $set: { dataChange }
+                dataChange
             },
             {
                 omitUndefined: true,
@@ -102,7 +104,7 @@ class ProfileC {
         Profile.findById({ _id })
             .then(profile => {
                 gcsDelete(profile.image)
-                return profile.findByIdAndDelete(_id)
+                return Profile.findByIdAndDelete(_id)
             })
             .then(success => {
                 res.status(200).json({ success, message: 'success deleting profile' })
@@ -130,8 +132,6 @@ class ProfileC {
                 console.log(err);
             })
     }
-
-
 
 }
 

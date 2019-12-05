@@ -9,6 +9,6 @@ router.get('/', ProfileController.findAll)
 router.post('/', multer.single('image'), gcs, ProfileController.uploadImage)
 router.delete('/:id', authorization, ProfileController.delete)
 router.patch('/:id', authorization, multer.single('image'), gcs, ProfileController.updateField)
-router.patch('/:id', ProfileController.love)
+router.patch('/love/:id', ProfileController.love)
 
 module.exports = router
