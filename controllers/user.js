@@ -12,7 +12,6 @@ class UserController {
                 res.status(201).json(newUser)
             })
             .catch(next)
-        // }
     }
 
     static login(req, res, next) {
