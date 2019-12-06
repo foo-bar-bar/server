@@ -23,8 +23,11 @@ const profileSchema = new Schema({
         type: String
     },
     lovers: [{
-        type: Schema.Types.ObjectId,
-        ref: 'User'
+        user: {
+            type: Schema.Types.ObjectId,
+            ref: 'User'
+        },
+        value: { type: Number }
     }]
 }, { timestamps: true })
 
