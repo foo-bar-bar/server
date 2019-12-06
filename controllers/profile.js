@@ -67,9 +67,9 @@ class ProfileC {
         console.log(req.loggedUser.id);
         Profile.findById(req.params.id)
             .sort({ createdAt: -1 })
-            .populate({ path: "userId", select: "name" })
+            .populate({ path: "userId", select: "name"})
+            .populate('lovers.user')
             .then(profile => {
-                console.log(profile)
                 res.status(200).json(profile)
             })
             .catch(next)
@@ -140,6 +140,8 @@ class ProfileC {
 
     static love(req, res, next) {
         const { fname, sname } = req.body
+        console.log(fname, sname);
+        
         axios({
             method: 'get',
             url: `https://love-calculator.p.rapidapi.com/getPercentage?fname=${fname}&sname=${sname}`,
@@ -156,12 +158,13 @@ class ProfileC {
             return Profile.findByIdAndUpdate(
                 _id,
             {
-                $push: { lovers }
+                $addToSet: { lovers }
             },
             {
                 omitUndefined: true,
                 new: true,
             })
+            .populate('lovers.user')
         })
         .then(profile => {
             res.status(200).json({ profile, message: 'success updated profile' })
