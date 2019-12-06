@@ -139,26 +139,36 @@ class ProfileC {
     }
 
     static love(req, res, next) {
-        const _id = req.params.id,
-            value = req.body.value,
+        const { fname, sname } = req.body
+        axios({
+            method: 'get',
+            url: `https://love-calculator.p.rapidapi.com/getPercentage?fname=${fname}&sname=${sname}`,
+            headers: {
+                "X-RapidAPI-Host": "love-calculator.p.rapidapi.com",
+	            "X-RapidAPI-Key": "1dd958d74bmsh12903858b9595dbp13929fjsn7bcae86db0e7"
+            }
+        })
+        .then(({data})=>{
+            const _id = req.params.id,
+            value = data.percentage,
             user = req.loggedUser.id,
             lovers = { user, value }
-        Profile.findByIdAndUpdate(
-            _id,
+            return Profile.findByIdAndUpdate(
+                _id,
             {
                 $push: { lovers }
             },
             {
                 omitUndefined: true,
                 new: true,
-                runValidators: true
             })
-            .then(profile => {
-                res.status(200).json({ profile, message: 'success updated profile' })
-            })
-            .catch(err => {
-                console.log(err);
-            })
+        })
+        .then(profile => {
+            res.status(200).json({ profile, message: 'success updated profile' })
+        })
+        .catch(err => {
+            console.log(err);
+        })
     }
 
 }
